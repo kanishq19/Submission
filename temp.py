@@ -69,13 +69,13 @@ class SandSim:
         self,
         width: int,
         height: int,
-        cell_size: int = 4,
-        fps: int = 120
+        cell_size: int = 6,
+        fps: int = 240
     ) -> None:
         self.cell_size = cell_size
         self.fps = fps
         self.brush = Material.SAND
-        self.brush_radius = 2
+        self.brush_radius = 1
         self.resize_cells(width, height)
 
     # ------------------------------------------------------------------ #
@@ -138,39 +138,7 @@ class SandSim:
     # Physics
     # ------------------------------------------------------------------ #
     def update(self) -> None:
-        """Advance the simulation by one tick.
-
-        Rules:
-
-        SAND:
-            1. Falls straight down if possible.
-            2. If blocked, slides diagonally down-left/down-right.
-            3. Otherwise stays in place.
-
-        WATER:
-            1. Falls straight down if possible.
-            2. If blocked, slides diagonally.
-            3. If still blocked, spreads sideways.
-
-        WOOD:
-            - Does not move.
-            - Does not age.
-            - Can be ignited by nearby fire.
-
-        FIRE:
-            - Rises upward.
-            - Spreads sideways.
-            - Ages every tick.
-            - Disappears after 60 ticks.
-            - Has a 20% chance per neighbouring wood cell to ignite it.
-            - If touching water, turns into smoke.
-
-        SMOKE:
-            - Rises upward.
-            - Spreads sideways.
-            - Ages every tick.
-            - Disappears after 40 ticks.
-        """
+       
 
         G = self._types
         A = self._attrs
@@ -313,7 +281,7 @@ class SandSim:
                             # Fire can ignite wood with probability 0.2.
                             elif neighbour == Material.WOOD:
                                 if _rng.random() < 0.2:
-                                    G_new[ny, nx] = Material.FIRE
+                                    G_new[ny, nx] = Material.SMOKE
                                     A_new[ny, nx] = 0
 
                     # Water takes priority over movement.
@@ -361,7 +329,7 @@ class SandSim:
                             ):
                                 G_new[y, x] = Material.EMPTY
                                 G_new[y, nx] = Material.FIRE
-                                A_new[nx * 0 + y, nx] = new_age
+                                A_new[y, nx] = new_age
                                 moved = True
                                 break
 
@@ -462,7 +430,7 @@ def main() -> None:
 
     clock = pygame.time.Clock()
 
-    sim = SandSim(800 // 4, 600 // 4)
+    sim = SandSim(800 // 6, 600 // 6)
 
     running = True
 
